@@ -30,7 +30,13 @@ pip install prog-lang
 ### On Termux (Android)
 
 ```bash
-pkg install python
+pkg install python git
+pip install git+https://github.com/lg-maxxa/PROG.git
+```
+
+Once the package is published to PyPI you can also use:
+
+```bash
 pip install prog-lang
 ```
 

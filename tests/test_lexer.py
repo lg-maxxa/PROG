@@ -21,6 +21,14 @@ class TestNumbers:
         tokens = tokenize("3.14")
         assert tokens[0] == Token(TokenType.NUMBER, 3.14, 1)
 
+    def test_leading_dot_float(self):
+        tokens = tokenize(".5")
+        assert tokens[0] == Token(TokenType.NUMBER, 0.5, 1)
+
+    def test_trailing_dot_float(self):
+        tokens = tokenize("5.")
+        assert tokens[0] == Token(TokenType.NUMBER, 5.0, 1)
+
     def test_zero(self):
         tokens = tokenize("0")
         assert tokens[0].value == 0

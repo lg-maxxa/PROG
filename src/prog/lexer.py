@@ -91,7 +91,7 @@ _TOKEN_PATTERNS: list[tuple[str, TokenType | None]] = [
     (r"[ \t]+", None),                          # whitespace — skip
     (r"#[^\n]*", None),                         # comment — skip
     (r"\n", TokenType.NEWLINE),
-    (r"\d+(?:\.\d+)?", TokenType.NUMBER),
+    (r"\d+(?:\.\d*)?|\.\d+", TokenType.NUMBER),
     (r'"[^"]*"', TokenType.STRING),
     (r"==", TokenType.EQ),
     (r"!=", TokenType.NEQ),

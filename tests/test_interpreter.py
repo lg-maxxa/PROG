@@ -18,6 +18,12 @@ class TestLiterals:
     def test_print_float(self):
         assert _run("print 3.14\n") == ["3.14"]
 
+    def test_print_leading_dot_float(self):
+        assert _run("print .5\n") == ["0.5"]
+
+    def test_print_trailing_dot_float(self):
+        assert _run("print 5.\n") == ["5"]
+
     def test_print_string(self):
         assert _run('print "hello"\n') == ["hello"]
 

@@ -46,6 +46,19 @@ def _repl() -> None:
             break
         if not line.strip():
             continue
+        if line.strip().startswith("run "):
+            path = line.strip()[4:].strip()
+            try:
+                with open(path, encoding="utf-8") as fh:
+                    source = fh.read()
+                interp.exec(source)
+            except OSError as exc:
+                print(_c("31", f"Cannot open '{path}': {exc}"), file=sys.stderr)
+            except (LexError, ParseError) as exc:
+                print(_c("33", f"Syntax error: {exc}"), file=sys.stderr)
+            except Exception as exc:  # noqa: BLE001
+                print(_c("31", f"Error: {exc}"), file=sys.stderr)
+            continue
         try:
             interp.exec(line)
         except (LexError, ParseError) as exc:

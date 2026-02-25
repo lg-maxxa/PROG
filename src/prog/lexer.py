@@ -51,6 +51,8 @@ class TokenType(Enum):
     # Delimiters
     LPAREN = auto()
     RPAREN = auto()
+    LBRACKET = auto()  # [
+    RBRACKET = auto()  # ]
     COMMA = auto()
     NEWLINE = auto()
     EOF = auto()
@@ -105,6 +107,8 @@ _TOKEN_PATTERNS: list[tuple[str, TokenType | None]] = [
     (r"%", TokenType.PERCENT),
     (r"\(", TokenType.LPAREN),
     (r"\)", TokenType.RPAREN),
+    (r"\[", TokenType.LBRACKET),
+    (r"\]", TokenType.RBRACKET),
     (r",", TokenType.COMMA),
     (r"[A-Za-z_][A-Za-z0-9_]*", TokenType.IDENT),
 ]

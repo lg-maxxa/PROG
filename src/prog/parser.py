@@ -34,8 +34,8 @@ Grammar (simplified):
     add         = mul (("+" | "-") mul)*
     mul         = unary (("*" | "/" | "%") unary)*
     unary       = "-" unary | call
-    call        = primary ("(" args ")")?
-    primary     = NUMBER | STRING | BOOL | NIL | IDENT | "(" expr ")"
+    call        = primary (("(" args ")") | ("[" expr "]"))*
+    primary     = NUMBER | STRING | BOOL | NIL | "[" args "]" | IDENT | "(" expr ")"
     args        = (expr ("," expr)*)?
 """
 
@@ -76,6 +76,12 @@ class NilLit:
 
 
 @dataclass
+class ListLit:
+    elements: List["Expr"]
+    line: int
+
+
+@dataclass
 class Ident:
     name: str
     line: int
@@ -100,6 +106,13 @@ class UnaryOp:
 class Call:
     callee: str
     args: List["Expr"]
+    line: int
+
+
+@dataclass
+class IndexExpr:
+    collection: "Expr"
+    index: "Expr"
     line: int
 
 
@@ -154,7 +167,8 @@ class ExprStmt:
 
 
 Expr = (
-    NumberLit | StringLit | BoolLit | NilLit | Ident | BinOp | UnaryOp | Call
+    NumberLit | StringLit | BoolLit | NilLit | ListLit | Ident
+    | BinOp | UnaryOp | Call | IndexExpr
 )
 Stmt = LetStmt | PrintStmt | ReturnStmt | IfStmt | WhileStmt | FuncDef | ExprStmt
 
@@ -412,15 +426,23 @@ class Parser:
 
     def _call(self) -> Expr:
         primary = self._primary()
-        if isinstance(primary, Ident) and self._check(TokenType.LPAREN):
-            self._advance()
-            args: List[Expr] = []
-            if not self._check(TokenType.RPAREN):
-                args.append(self._expr())
-                while self._match(TokenType.COMMA):
+        while True:
+            if isinstance(primary, Ident) and self._check(TokenType.LPAREN):
+                self._advance()
+                args: List[Expr] = []
+                if not self._check(TokenType.RPAREN):
                     args.append(self._expr())
-            self._expect(TokenType.RPAREN)
-            return Call(primary.name, args, primary.line)
+                    while self._match(TokenType.COMMA):
+                        args.append(self._expr())
+                self._expect(TokenType.RPAREN)
+                primary = Call(primary.name, args, primary.line)
+            elif self._check(TokenType.LBRACKET):
+                tok = self._advance()
+                index = self._expr()
+                self._expect(TokenType.RBRACKET)
+                primary = IndexExpr(primary, index, tok.line)
+            else:
+                break
         return primary
 
     def _primary(self) -> Expr:
@@ -451,6 +473,16 @@ class Parser:
             expr = self._expr()
             self._expect(TokenType.RPAREN)
             return expr
+
+        if tok.type == TokenType.LBRACKET:
+            self._advance()
+            elements: List[Expr] = []
+            if not self._check(TokenType.RBRACKET):
+                elements.append(self._expr())
+                while self._match(TokenType.COMMA):
+                    elements.append(self._expr())
+            self._expect(TokenType.RBRACKET)
+            return ListLit(elements, tok.line)
 
         raise ParseError(
             f"Unexpected token {tok.type.name} ({tok.value!r})", tok.line

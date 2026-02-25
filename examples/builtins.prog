@@ -1,0 +1,29 @@
+# builtins.prog — demonstrates PROG built-in functions
+
+# type() — inspect runtime types
+print type(42)        # int
+print type(3.14)      # float
+print type("hello")   # string
+print type(true)      # bool
+print type(nil)       # nil
+print type([1, 2])    # list
+
+# str() and int() — explicit conversions
+let n = 7
+print "Number is: " + str(n)
+
+let s = "99"
+let m = int(s)
+print m + 1           # 100
+
+# abs() — absolute value
+print abs(-15)        # 15
+print abs(3.5)        # 3.5
+
+# len() — string length
+let word = "PROG"
+print "Language has " + len(word) + " letters"
+
+# max() and min()
+print max(3, 7, 2, 9, 1)   # 9
+print min(3, 7, 2, 9, 1)   # 1

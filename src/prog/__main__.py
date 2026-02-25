@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 
+from . import __version__
 from .interpreter import Interpreter, run
 from .lexer import LexError
 from .parser import ParseError
@@ -11,7 +12,7 @@ from .parser import ParseError
 
 def _repl() -> None:
     interp = Interpreter()
-    print("PROG 0.1.0  (type 'exit' or Ctrl-D to quit)")
+    print(f"PROG {__version__}  (type 'exit' or Ctrl-D to quit)")
     while True:
         try:
             line = input(">>> ")

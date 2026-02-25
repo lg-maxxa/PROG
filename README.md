@@ -21,6 +21,27 @@
 
 ## Installation
 
+### From PyPI (recommended)
+
+```bash
+pip install prog-lang
+```
+
+### On Termux (Android)
+
+```bash
+pkg install python git
+pip install git+https://github.com/lg-maxxa/PROG.git
+```
+
+Once the package is published to PyPI you can also use:
+
+```bash
+pip install prog-lang
+```
+
+### From source
+
 ```bash
 git clone https://github.com/lg-maxxa/PROG.git
 cd PROG
@@ -218,6 +239,40 @@ PROG/
 ├── pyproject.toml
 └── LICENSE
 ```
+
+---
+
+## Publishing to PyPI
+
+Releases are published automatically via the `.github/workflows/publish.yml` workflow using
+[PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (no API tokens required).
+
+### One-time PyPI setup
+
+1. Go to <https://pypi.org/manage/account/publishing/> and click **"Add a new pending publisher"**.
+2. Fill in the form with **exactly** these values:
+
+   | Field | Value |
+   |---|---|
+   | **PyPI Project Name** | `prog-lang` |
+   | **Owner** | `lg-maxxa` |
+   | **Repository name** | `PROG` |
+   | **Workflow name** | `publish.yml` |
+   | **Environment name** | `pypi` |
+
+   > ⚠️ The project name is `prog-lang` (lowercase, hyphenated) — not "PROG" or "PROG LANGUAGE".  
+   > ⚠️ The repository name is just `PROG` — do **not** include the owner prefix (`lg-maxxa/PROG`).
+
+3. In the GitHub repository, create an environment named **`pypi`** under **Settings → Environments**.
+
+### Publishing a release
+
+```bash
+git tag v0.1.0
+git push --tags
+```
+
+The workflow triggers automatically, builds the package, and publishes it to PyPI.
 
 ---
 

@@ -1,0 +1,18 @@
+# functions.prog — demonstrates user-defined functions
+
+func greet(name)
+  print "Hello, " + name + "!"
+end
+
+func factorial(n)
+  if n <= 1 then
+    return 1
+  end
+  return n * factorial(n - 1)
+end
+
+greet("Alice")
+greet("Bob")
+
+let result = factorial(6)
+print "6! = " + result

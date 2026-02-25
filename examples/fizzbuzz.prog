@@ -1,0 +1,20 @@
+# fizzbuzz.prog — the classic FizzBuzz challenge
+
+let i = 1
+
+while i <= 20 do
+  if i % 15 == 0 then
+    print "FizzBuzz"
+  else
+    if i % 3 == 0 then
+      print "Fizz"
+    else
+      if i % 5 == 0 then
+        print "Buzz"
+      else
+        print i
+      end
+    end
+  end
+  let i = i + 1
+end

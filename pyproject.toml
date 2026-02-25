@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prog-lang"
+version = "0.1.0"
+description = "PROG — a simple, open-source programming language for AI model training"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+
+[project.scripts]
+prog = "prog.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

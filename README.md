@@ -104,6 +104,13 @@ Hello!
 >>> exit
 ```
 
+You can also run a `.prog` file from within the REPL using the `run` command:
+
+```
+>>> run examples/hello.prog
+Hello, World!
+```
+
 Press **Ctrl-D** (Linux/macOS) or **Ctrl-Z** then **Enter** (Windows) to quit.
 
 ---

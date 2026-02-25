@@ -21,6 +21,21 @@
 
 ## Installation
 
+### From PyPI (recommended)
+
+```bash
+pip install prog-lang
+```
+
+### On Termux (Android)
+
+```bash
+pkg install python
+pip install prog-lang
+```
+
+### From source
+
 ```bash
 git clone https://github.com/lg-maxxa/PROG.git
 cd PROG

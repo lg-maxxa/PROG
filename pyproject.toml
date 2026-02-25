@@ -9,6 +9,27 @@ description = "PROG — a simple, open-source programming language for AI model 
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
+keywords = ["programming-language", "interpreter", "ai", "training-data", "repl"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/lg-maxxa/PROG"
+Repository = "https://github.com/lg-maxxa/PROG"
+"Bug Tracker" = "https://github.com/lg-maxxa/PROG/issues"
 
 [project.scripts]
 prog = "prog.__main__:main"

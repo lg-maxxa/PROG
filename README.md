@@ -139,7 +139,7 @@ let nothing = nil
 
 | Type    | Examples                    |
 |---------|-----------------------------|
-| Number  | `0`, `42`, `3.14`           |
+| Number  | `0`, `42`, `3.14`, `.5`, `5.` |
 | String  | `"hello"`, `""`             |
 | Boolean | `true`, `false`             |
 | Nil     | `nil`                       |

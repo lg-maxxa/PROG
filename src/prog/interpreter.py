@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any, Dict, List, Optional
 
 from .parser import (
@@ -12,7 +13,9 @@ from .parser import (
     FuncDef,
     Ident,
     IfStmt,
+    IndexExpr,
     LetStmt,
+    ListLit,
     NilLit,
     NumberLit,
     PrintStmt,
@@ -28,7 +31,7 @@ from .parser import (
 # Runtime values
 # ---------------------------------------------------------------------------
 
-Value = int | float | str | bool | None
+Value = int | float | str | bool | list | None
 
 
 class _ReturnSignal(Exception):
@@ -49,6 +52,17 @@ class _Function:
 
     def __repr__(self) -> str:
         return f"<func {self.name}>"
+
+
+class _Builtin:
+    """A built-in PROG function implemented in Python."""
+
+    def __init__(self, name: str, fn) -> None:
+        self.name = name
+        self.fn = fn
+
+    def __repr__(self) -> str:
+        return f"<builtin {self.name}>"
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +115,152 @@ class Interpreter:
     def __init__(self, output=None) -> None:
         self._output = output  # callable(str) — defaults to print
         self._globals = Environment()
+        self._register_builtins()
+
+    def _register_builtins(self) -> None:
+        """Register standard built-in functions in the global scope."""
+
+        def _len(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"len() takes 1 argument at line {line}")
+            v = args[0]
+            if isinstance(v, (str, list)):
+                return len(v)
+            raise RuntimeError(
+                f"len() requires a string or list, got {type(v).__name__} at line {line}"
+            )
+
+        def _type(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"type() takes 1 argument at line {line}")
+            v = args[0]
+            if v is None:
+                return "nil"
+            if isinstance(v, bool):
+                return "bool"
+            if isinstance(v, int):
+                return "int"
+            if isinstance(v, float):
+                return "float"
+            if isinstance(v, str):
+                return "string"
+            if isinstance(v, list):
+                return "list"
+            return type(v).__name__
+
+        def _str(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"str() takes 1 argument at line {line}")
+            return self._to_str(args[0])
+
+        def _int(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"int() takes 1 argument at line {line}")
+            v = args[0]
+            try:
+                if isinstance(v, bool):
+                    raise RuntimeError(
+                        f"int() cannot convert bool at line {line}"
+                    )
+                return int(v)
+            except (ValueError, TypeError):
+                raise RuntimeError(
+                    f"int() cannot convert {type(v).__name__!r} at line {line}"
+                )
+
+        def _float(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"float() takes 1 argument at line {line}")
+            v = args[0]
+            try:
+                if isinstance(v, bool):
+                    raise RuntimeError(
+                        f"float() cannot convert bool at line {line}"
+                    )
+                return float(v)
+            except (ValueError, TypeError):
+                raise RuntimeError(
+                    f"float() cannot convert {type(v).__name__!r} at line {line}"
+                )
+
+        def _abs(args, line):
+            if len(args) != 1:
+                raise RuntimeError(f"abs() takes 1 argument at line {line}")
+            return abs(self._num(args[0], line))
+
+        def _max(args, line):
+            if len(args) == 1 and isinstance(args[0], list):
+                items = args[0]
+            else:
+                items = args
+            if not items:
+                raise RuntimeError(f"max() called with no values at line {line}")
+            return max(self._num(v, line) for v in items)
+
+        def _min(args, line):
+            if len(args) == 1 and isinstance(args[0], list):
+                items = args[0]
+            else:
+                items = args
+            if not items:
+                raise RuntimeError(f"min() called with no values at line {line}")
+            return min(self._num(v, line) for v in items)
+
+        def _append(args, line):
+            if len(args) != 2:
+                raise RuntimeError(f"append() takes 2 arguments at line {line}")
+            lst, val = args
+            if not isinstance(lst, list):
+                raise RuntimeError(
+                    f"append() requires a list as first argument at line {line}"
+                )
+            lst.append(val)
+            return lst
+
+        def _pop(args, line):
+            if len(args) not in (1, 2):
+                raise RuntimeError(
+                    f"pop() takes 1 or 2 arguments at line {line}"
+                )
+            lst = args[0]
+            if not isinstance(lst, list):
+                raise RuntimeError(
+                    f"pop() requires a list as first argument at line {line}"
+                )
+            if len(args) == 2:
+                idx = int(self._num(args[1], line))
+                if idx < 0 or idx >= len(lst):
+                    raise RuntimeError(
+                        f"pop() index out of range at line {line}"
+                    )
+                return lst.pop(idx)
+            if not lst:
+                raise RuntimeError(f"pop() from empty list at line {line}")
+            return lst.pop()
+
+        def _input(args, line):
+            if len(args) > 1:
+                raise RuntimeError(f"input() takes 0 or 1 argument at line {line}")
+            prompt = self._to_str(args[0]) if args else ""
+            try:
+                return input(prompt)
+            except EOFError:
+                return ""
+
+        for name, fn in [
+            ("len", _len),
+            ("type", _type),
+            ("str", _str),
+            ("int", _int),
+            ("float", _float),
+            ("abs", _abs),
+            ("max", _max),
+            ("min", _min),
+            ("append", _append),
+            ("pop", _pop),
+            ("input", _input),
+        ]:
+            self._globals.set(name, _Builtin(name, fn))
 
     def _emit(self, text: str) -> None:
         if self._output is not None:
@@ -179,8 +339,30 @@ class Interpreter:
         if isinstance(node, NilLit):
             return None
 
+        if isinstance(node, ListLit):
+            return [self._eval(e, env) for e in node.elements]
+
         if isinstance(node, Ident):
             return env.get(node.name, node.line)
+
+        if isinstance(node, IndexExpr):
+            collection = self._eval(node.collection, env)
+            index = self._eval(node.index, env)
+            if not isinstance(collection, (list, str)):
+                raise RuntimeError(
+                    f"Index operator requires a list or string at line {node.line}"
+                )
+            if not isinstance(index, (int, float)) or isinstance(index, bool):
+                raise RuntimeError(
+                    f"Index must be a number at line {node.line}"
+                )
+            idx = int(index)
+            if idx < 0 or idx >= len(collection):
+                raise RuntimeError(
+                    f"Index {idx} out of range (length {len(collection)}) "
+                    f"at line {node.line}"
+                )
+            return collection[idx]
 
         if isinstance(node, UnaryOp):
             operand = self._eval(node.operand, env)
@@ -254,6 +436,9 @@ class Interpreter:
 
     def _eval_call(self, node: Call, env: Environment) -> Value:
         callee = env.get(node.callee, node.line)
+        if isinstance(callee, _Builtin):
+            args = [self._eval(a, env) for a in node.args]
+            return callee.fn(args, node.line)
         if not isinstance(callee, _Function):
             raise RuntimeError(
                 f"'{node.callee}' is not a function at line {node.line}"
@@ -303,6 +488,8 @@ class Interpreter:
             return "nil"
         if isinstance(value, bool):
             return "true" if value else "false"
+        if isinstance(value, list):
+            return "[" + ", ".join(Interpreter._to_str(v) for v in value) + "]"
         if isinstance(value, float) and value == int(value):
             return str(int(value))
         return str(value)

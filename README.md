@@ -14,6 +14,8 @@
 - `if / then / else / end` conditionals
 - `while / do / end` loops
 - Recursion supported out of the box
+- **List literals** `[1, 2, 3]` with indexing and built-in list operations
+- **Built-in functions**: `len`, `type`, `str`, `int`, `float`, `abs`, `max`, `min`, `append`, `pop`, `input`
 - Single-line comments with `#`
 - Implemented as a pure-Python tree-walking interpreter — easy to study and extend
 
@@ -21,37 +23,88 @@
 
 ## Installation
 
+Follow these steps exactly to get PROG running on your machine.
+
+### Step 1 — Check Python version
+
+PROG requires **Python 3.10 or newer**.
+
+```bash
+python --version
+# Should print Python 3.10.x or higher
+```
+
+If you need to upgrade, download Python from <https://python.org>.
+
+### Step 2 — Clone the repository
+
 ```bash
 git clone https://github.com/lg-maxxa/PROG.git
 cd PROG
+```
+
+### Step 3 — Install PROG
+
+```bash
 pip install -e .
 ```
 
-Python 3.10 or newer is required.
+This installs the `prog` command into your Python environment.  
+The `-e` flag means changes to the source take effect immediately (editable install).
+
+### Step 4 — Verify the installation
+
+```bash
+prog --help        # or: python -m prog --help
+```
+
+You should see no errors. If `prog` is not found, try `python -m prog` instead.
 
 ---
 
-## Quick Start
+## Running PROG Programs
 
-Create a file `hello.prog`:
-
-```
-print "Hello, World!"
-```
-
-Run it:
+### Run a `.prog` file
 
 ```bash
-python -m prog hello.prog
-# or, after pip install:
-prog hello.prog
+prog examples/hello.prog
 ```
 
-Start the interactive REPL:
+Expected output:
+
+```
+Hello, World!
+```
+
+### Run any example program
+
+```bash
+prog examples/fibonacci.prog
+prog examples/fizzbuzz.prog
+prog examples/functions.prog
+prog examples/lists.prog
+prog examples/builtins.prog
+```
+
+### Start the interactive REPL
 
 ```bash
 prog
 ```
+
+The REPL greets you with a banner and a `>>>` prompt.  
+Type any PROG expression or statement and press **Enter**:
+
+```
+>>> print "Hello!"
+Hello!
+>>> let x = 6 * 7
+>>> print x
+42
+>>> exit
+```
+
+Press **Ctrl-D** (Linux/macOS) or **Ctrl-Z** then **Enter** (Windows) to quit.
 
 ---
 
@@ -83,6 +136,7 @@ let nothing = nil
 | String  | `"hello"`, `""`             |
 | Boolean | `true`, `false`             |
 | Nil     | `nil`                       |
+| List    | `[1, 2, 3]`, `["a", "b"]`  |
 
 ### Arithmetic
 
@@ -184,6 +238,44 @@ end
 print factorial(10)
 ```
 
+### Lists
+
+Create a list with square brackets:
+
+```
+let nums = [1, 2, 3, 4, 5]
+```
+
+Access elements by zero-based index:
+
+```
+print nums[0]   # 1
+print nums[4]   # 5
+```
+
+Lists can be nested:
+
+```
+let grid = [[1, 2], [3, 4]]
+print grid[0][1]   # 2
+```
+
+### Built-in Functions
+
+| Function         | Description                                   | Example                        |
+|------------------|-----------------------------------------------|--------------------------------|
+| `len(x)`         | Length of a string or list                    | `len("hi")` → `2`             |
+| `type(x)`        | Runtime type name as a string                 | `type(42)` → `"int"`          |
+| `str(x)`         | Convert any value to a string                 | `str(3.14)` → `"3.14"`        |
+| `int(x)`         | Convert a number or numeric string to integer | `int("7")` → `7`              |
+| `float(x)`       | Convert to floating-point number              | `float("3.14")` → `3.14`      |
+| `abs(x)`         | Absolute value                                | `abs(-5)` → `5`               |
+| `max(a, b, ...)` | Largest of the arguments (or a list)          | `max(1, 9, 3)` → `9`          |
+| `min(a, b, ...)` | Smallest of the arguments (or a list)         | `min(1, 9, 3)` → `1`          |
+| `append(lst, v)` | Append value to list in-place, return list    | `append(nums, 6)`             |
+| `pop(lst)`       | Remove and return last element of list        | `pop(nums)` → last item        |
+| `input(prompt)`  | Read a line of user input                     | `let name = input("Name: ")`  |
+
 ---
 
 ## Example Programs
@@ -196,6 +288,8 @@ The `examples/` directory contains ready-to-run programs:
 | `fibonacci.prog`   | First 10 Fibonacci numbers         |
 | `fizzbuzz.prog`    | FizzBuzz up to 20                  |
 | `functions.prog`   | User-defined functions & recursion |
+| `lists.prog`       | List literals, indexing, operations|
+| `builtins.prog`    | Built-in function showcase         |
 
 ---
 
@@ -223,13 +317,24 @@ PROG/
 
 ## Running Tests
 
+### Step 1 — Install pytest
+
 ```bash
 pip install pytest
+```
+
+### Step 2 — Run the test suite
+
+```bash
 python -m pytest tests/ -v
 ```
+
+All tests should pass.  
+The `-v` flag prints each test name so you can see exactly what is being verified.
 
 ---
 
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
+

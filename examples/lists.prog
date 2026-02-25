@@ -1,0 +1,25 @@
+# lists.prog — demonstrates list literals, indexing, and list built-ins
+
+let nums = [10, 20, 30, 40, 50]
+
+# Access individual elements by index
+print "First element:  " + nums[0]
+print "Third element:  " + nums[2]
+print "Length:         " + len(nums)
+
+# Append and pop
+append(nums, 60)
+print "After append:   " + str(nums)
+
+let last = pop(nums)
+print "Popped value:   " + last
+print "After pop:      " + str(nums)
+
+# min / max
+print "Min: " + min(nums)
+print "Max: " + max(nums)
+
+# Nested list
+let matrix = [[1, 2], [3, 4]]
+print "matrix[0][1] = " + matrix[0][1]
+print "matrix[1][0] = " + matrix[1][0]
